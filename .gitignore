@@ -1,0 +1,10 @@
+node_modules/
+.vscode/
+app.tar.gz
+*.zip
+dist/
+.env
+.env.local
+apps/pocketbase/pb_data/
+.vite/
+apps/web/.vite/
