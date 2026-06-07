@@ -1,0 +1,155 @@
+
+import React from 'react';
+import { Route, Routes, BrowserRouter as Router, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext.jsx';
+import { LanguageProvider } from '@/contexts/LanguageContext.jsx';
+import ScrollToTop from '@/components/ScrollToTop.jsx';
+import ProtectedRoute from '@/components/ProtectedRoute.jsx';
+import RoleProtectedRoute from '@/components/RoleProtectedRoute.jsx';
+import LandingPage from '@/pages/LandingPage.jsx';
+import LoginPage from '@/pages/LoginPage.jsx';
+import SignupPage from '@/pages/SignupPage.jsx';
+import OnboardingPage from '@/pages/OnboardingPage.jsx';
+import DashboardRouter from '@/pages/DashboardRouter.jsx';
+import PatientListPage from '@/pages/PatientListPage.jsx';
+import PatientDetailPage from '@/pages/PatientDetailPage.jsx';
+import AppointmentListPage from '@/pages/AppointmentListPage.jsx';
+import CalendarViewPage from '@/pages/CalendarViewPage.jsx';
+import AppointmentDetailPage from '@/pages/AppointmentDetailPage.jsx';
+
+// Exercise Ecosystem Pages
+import ExerciseDashboard from '@/pages/ExerciseDashboard.jsx';
+import ExerciseLibraryPage from '@/pages/ExerciseLibraryPage.jsx';
+import MyVideosPage from '@/pages/MyVideosPage.jsx';
+import ProgramBuilderPage from '@/pages/ProgramBuilderPage.jsx';
+import ProgramTemplatesPage from '@/pages/ProgramTemplatesPage.jsx';
+import AssignedProgramsPage from '@/pages/AssignedProgramsPage.jsx';
+import PatientProgressPage from '@/pages/PatientProgressPage.jsx';
+import ExerciseAnalyticsPage from '@/pages/ExerciseAnalyticsPage.jsx';
+
+import ExerciseDetailPage from '@/pages/ExerciseDetailPage.jsx';
+import PatientProgramTrackingPage from '@/pages/PatientProgramTrackingPage.jsx';
+import PatientExerciseViewPage from '@/pages/PatientExerciseViewPage.jsx';
+import AIExerciseProgramGeneratorPage from '@/pages/AIExerciseProgramGeneratorPage.jsx';
+
+// Admin Pages
+import ExerciseLibraryAdminPage from '@/pages/admin/ExerciseLibraryAdminPage.jsx';
+import AddExercisePage from '@/pages/admin/AddExercisePage.jsx';
+import EditExercisePage from '@/pages/admin/EditExercisePage.jsx';
+import CategoriesManagementPage from '@/pages/admin/CategoriesManagementPage.jsx';
+import ExerciseStatisticsPage from '@/pages/admin/ExerciseStatisticsPage.jsx';
+import LanguageManagementPage from '@/pages/admin/LanguageManagementPage.jsx';
+
+// Patient Portal Pages
+import PatientLayout from '@/components/patient/PatientLayout.jsx';
+import PatientDashboardPage from '@/pages/patient/PatientDashboardPage.jsx';
+import MyExerciseProgramsPage from '@/pages/patient/MyExerciseProgramsPage.jsx';
+import ExerciseVideosPage from '@/pages/patient/ExerciseVideosPage.jsx';
+import RecoveryProgressPage from '@/pages/patient/RecoveryProgressPage.jsx';
+import PainTrackingPage from '@/pages/patient/PainTrackingPage.jsx';
+import AppointmentsPage from '@/pages/patient/AppointmentsPage.jsx';
+import MessagesPage from '@/pages/patient/MessagesPage.jsx';
+import TelehealthPage from '@/pages/patient/TelehealthPage.jsx';
+import PatientProfilePage from '@/pages/patient/PatientProfilePage.jsx';
+import PatientLanguageSettingsPage from '@/pages/patient/PatientLanguageSettingsPage.jsx';
+
+// SOAP Notes Assistant
+import SOAPNotesPage from '@/pages/SOAPNotesPage.jsx';
+import SOAPHistoryPage from '@/pages/therapist/SOAPHistoryPage.jsx';
+
+// Billing & Packages
+import PackageManagementPage from '@/pages/therapist/PackageManagementPage.jsx';
+import InvoiceListPage from '@/pages/therapist/InvoiceListPage.jsx';
+import PaymentListPage from '@/pages/therapist/PaymentListPage.jsx';
+
+// New Core Pages
+import ExerciseProgramsPage from '@/pages/ExerciseProgramsPage.jsx';
+import ReportsPage from '@/pages/ReportsPage.jsx';
+import SettingsPage from '@/pages/SettingsPage.jsx';
+import TherapistLanguageSettingsPage from '@/pages/TherapistLanguageSettingsPage.jsx';
+
+import { Toaster } from 'sonner';
+
+function App() {
+  return (
+    <AuthProvider>
+      <LanguageProvider>
+        <Router>
+          <ScrollToTop />
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<SignupPage />} />
+            <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
+            
+            <Route path="/dashboard" element={<ProtectedRoute><DashboardRouter /></ProtectedRoute>} />
+            
+            <Route path="/patients" element={<RoleProtectedRoute allowedRoles={['admin', 'therapist']}><PatientListPage /></RoleProtectedRoute>} />
+            <Route path="/patients/:id" element={<RoleProtectedRoute allowedRoles={['admin', 'therapist']}><PatientDetailPage /></RoleProtectedRoute>} />
+            <Route path="/patients/:patientId/programs" element={<RoleProtectedRoute allowedRoles={['admin', 'therapist']}><PatientProgramTrackingPage /></RoleProtectedRoute>} />
+            
+            <Route path="/appointments" element={<RoleProtectedRoute allowedRoles={['therapist']}><AppointmentListPage /></RoleProtectedRoute>} />
+            <Route path="/appointments/calendar" element={<RoleProtectedRoute allowedRoles={['therapist']}><CalendarViewPage /></RoleProtectedRoute>} />
+            <Route path="/appointments/:id" element={<RoleProtectedRoute allowedRoles={['therapist']}><AppointmentDetailPage /></RoleProtectedRoute>} />
+            
+            {/* Exercise Ecosystem Routes */}
+            <Route path="/exercise-dashboard" element={<RoleProtectedRoute allowedRoles={['admin', 'therapist']}><ExerciseDashboard /></RoleProtectedRoute>} />
+            <Route path="/exercise-library" element={<RoleProtectedRoute allowedRoles={['admin', 'therapist']}><ExerciseLibraryPage /></RoleProtectedRoute>} />
+            <Route path="/my-videos" element={<RoleProtectedRoute allowedRoles={['admin', 'therapist']}><MyVideosPage /></RoleProtectedRoute>} />
+            <Route path="/program-builder" element={<RoleProtectedRoute allowedRoles={['admin', 'therapist']}><ProgramBuilderPage /></RoleProtectedRoute>} />
+            <Route path="/program-templates" element={<RoleProtectedRoute allowedRoles={['admin', 'therapist']}><ProgramTemplatesPage /></RoleProtectedRoute>} />
+            <Route path="/assigned-programs" element={<RoleProtectedRoute allowedRoles={['admin', 'therapist']}><AssignedProgramsPage /></RoleProtectedRoute>} />
+            <Route path="/patient-progress" element={<RoleProtectedRoute allowedRoles={['admin', 'therapist']}><PatientProgressPage /></RoleProtectedRoute>} />
+            <Route path="/exercise-analytics" element={<RoleProtectedRoute allowedRoles={['admin', 'therapist']}><ExerciseAnalyticsPage /></RoleProtectedRoute>} />
+
+            <Route path="/exercises/:id" element={<RoleProtectedRoute allowedRoles={['admin', 'therapist']}><ExerciseDetailPage /></RoleProtectedRoute>} />
+            <Route path="/ai/program-generator" element={<RoleProtectedRoute allowedRoles={['admin', 'therapist']}><AIExerciseProgramGeneratorPage /></RoleProtectedRoute>} />
+
+            <Route path="/soap-notes" element={<RoleProtectedRoute allowedRoles={['therapist']}><SOAPNotesPage /></RoleProtectedRoute>} />
+            <Route path="/reports" element={<RoleProtectedRoute allowedRoles={['admin', 'therapist']}><ReportsPage /></RoleProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+            <Route path="/settings/language" element={<RoleProtectedRoute allowedRoles={['admin', 'therapist']}><TherapistLanguageSettingsPage /></RoleProtectedRoute>} />
+
+            <Route path="/therapist/soap-notes/history" element={<RoleProtectedRoute allowedRoles={['therapist']}><SOAPHistoryPage /></RoleProtectedRoute>} />
+            
+            <Route path="/therapist/packages" element={<RoleProtectedRoute allowedRoles={['admin', 'therapist']}><PackageManagementPage /></RoleProtectedRoute>} />
+            <Route path="/therapist/invoices" element={<RoleProtectedRoute allowedRoles={['admin', 'therapist']}><InvoiceListPage /></RoleProtectedRoute>} />
+            <Route path="/therapist/payments" element={<RoleProtectedRoute allowedRoles={['admin', 'therapist']}><PaymentListPage /></RoleProtectedRoute>} />
+
+            <Route path="/admin/exercises" element={<RoleProtectedRoute allowedRoles={['admin']}><ExerciseLibraryAdminPage /></RoleProtectedRoute>} />
+            <Route path="/admin/exercises/new" element={<RoleProtectedRoute allowedRoles={['admin']}><AddExercisePage /></RoleProtectedRoute>} />
+            <Route path="/admin/exercises/:id/edit" element={<RoleProtectedRoute allowedRoles={['admin']}><EditExercisePage /></RoleProtectedRoute>} />
+            <Route path="/admin/categories" element={<RoleProtectedRoute allowedRoles={['admin']}><CategoriesManagementPage /></RoleProtectedRoute>} />
+            <Route path="/admin/statistics" element={<RoleProtectedRoute allowedRoles={['admin']}><ExerciseStatisticsPage /></RoleProtectedRoute>} />
+            <Route path="/admin/languages" element={<RoleProtectedRoute allowedRoles={['admin']}><LanguageManagementPage /></RoleProtectedRoute>} />
+
+            <Route path="/patient/programs/:assignmentId" element={<RoleProtectedRoute allowedRoles={['patient']}><PatientExerciseViewPage /></RoleProtectedRoute>} />
+            
+            {/* Patient Portal Routes */}
+            <Route path="/patient" element={<RoleProtectedRoute allowedRoles={['patient']}><PatientLayout /></RoleProtectedRoute>}>
+              <Route path="dashboard" element={<PatientDashboardPage />} />
+              <Route path="programs" element={<MyExerciseProgramsPage />} />
+              <Route path="videos" element={<ExerciseVideosPage />} />
+              <Route path="recovery" element={<RecoveryProgressPage />} />
+              <Route path="pain-tracking" element={<PainTrackingPage />} />
+              <Route path="appointments" element={<AppointmentsPage />} />
+              <Route path="messages" element={<MessagesPage />} />
+              <Route path="telehealth" element={<TelehealthPage />} />
+              <Route path="profile" element={<PatientProfilePage />} />
+              <Route path="settings/language" element={<PatientLanguageSettingsPage />} />
+              {/* Fallbacks for missing pages to prevent 404s during dev */}
+              <Route path="assessments" element={<div className="p-8 text-center">Assessments Coming Soon</div>} />
+              <Route path="achievements" element={<div className="p-8 text-center">Achievements Coming Soon</div>} />
+              <Route path="education" element={<div className="p-8 text-center">Education Center Coming Soon</div>} />
+            </Route>
+            
+            <Route path="*" element={<div className="min-h-screen flex flex-col items-center justify-center bg-background"><h1 className="text-4xl font-bold mb-2">404</h1><a href="/" className="text-primary hover:underline">Back to home</a></div>} />
+          </Routes>
+          <Toaster position="top-right" theme="system" closeButton richColors />
+        </Router>
+      </LanguageProvider>
+    </AuthProvider>
+  );
+}
+
+export default App;

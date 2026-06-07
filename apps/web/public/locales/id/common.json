@@ -1,0 +1,53 @@
+
+{
+  "nav": {
+    "home": "Beranda",
+    "features": "Fitur",
+    "howItWorks": "Cara Kerja",
+    "pricing": "Harga",
+    "about": "Tentang",
+    "login": "Masuk",
+    "signup": "Mulai Gratis",
+    "dashboard": "Dasbor",
+    "patients": "Pasien",
+    "appointments": "Janji Temu",
+    "overview": "Ringkasan",
+    "library": "Pustaka",
+    "myVideos": "Video Saya",
+    "builder": "Pembuat",
+    "templates": "Templat",
+    "assigned": "Ditugaskan",
+    "patientProgress": "Kemajuan Pasien",
+    "analytics": "Analitik",
+    "settings": "Pengaturan",
+    "logout": "Keluar",
+    "profileSettings": "Pengaturan Profil",
+    "languageSettings": "Pengaturan Bahasa",
+    "myPrograms": "Program Saya",
+    "exerciseVideos": "Video Latihan",
+    "recoveryProgress": "Kemajuan Pemulihan",
+    "painTracking": "Pelacakan Nyeri",
+    "messages": "Pesan",
+    "telehealth": "Telehealth",
+    "assessments": "Penilaian",
+    "achievements": "Pencapaian",
+    "educationCenter": "Pusat Edukasi",
+    "myProfile": "Profil Saya"
+  },
+  "common": {
+    "welcome": "Selamat Datang",
+    "clinicDashboard": "Dasbor Klinik",
+    "save": "Simpan",
+    "cancel": "Batal",
+    "loading": "Memuat...",
+    "success": "Sukses",
+    "error": "Kesalahan"
+  },
+  "exercises": {
+    "sets": "Set",
+    "reps": "Repetisi",
+    "work": "Kerja",
+    "assign": "Tugaskan",
+    "edit": "Edit"
+  }
+}

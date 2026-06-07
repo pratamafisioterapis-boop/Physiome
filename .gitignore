@@ -3,8 +3,9 @@ node_modules/
 app.tar.gz
 *.zip
 dist/
+.vite/
 .env
 .env.local
+*.log
 apps/pocketbase/pb_data/
-.vite/
 apps/web/.vite/

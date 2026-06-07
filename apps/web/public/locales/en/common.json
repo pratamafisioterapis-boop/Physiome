@@ -1,0 +1,53 @@
+
+{
+  "nav": {
+    "home": "Home",
+    "features": "Features",
+    "howItWorks": "How It Works",
+    "pricing": "Pricing",
+    "about": "About",
+    "login": "Login",
+    "signup": "Start Free",
+    "dashboard": "Dashboard",
+    "patients": "Patients",
+    "appointments": "Appointments",
+    "overview": "Overview",
+    "library": "Library",
+    "myVideos": "My Videos",
+    "builder": "Builder",
+    "templates": "Templates",
+    "assigned": "Assigned",
+    "patientProgress": "Patient Progress",
+    "analytics": "Analytics",
+    "settings": "Settings",
+    "logout": "Logout",
+    "profileSettings": "Profile Settings",
+    "languageSettings": "Language Settings",
+    "myPrograms": "My Programs",
+    "exerciseVideos": "Exercise Videos",
+    "recoveryProgress": "Recovery Progress",
+    "painTracking": "Pain Tracking",
+    "messages": "Messages",
+    "telehealth": "Telehealth",
+    "assessments": "Assessments",
+    "achievements": "Achievements",
+    "educationCenter": "Education Center",
+    "myProfile": "My Profile"
+  },
+  "common": {
+    "welcome": "Welcome",
+    "clinicDashboard": "Clinic Dashboard",
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "success": "Success",
+    "error": "Error"
+  },
+  "exercises": {
+    "sets": "Sets",
+    "reps": "Reps",
+    "work": "Work",
+    "assign": "Assign",
+    "edit": "Edit"
+  }
+}
