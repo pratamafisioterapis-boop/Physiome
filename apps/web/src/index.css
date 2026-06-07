@@ -1,0 +1,132 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Physiome Premium Brand Tokens */
+    --primary: 178 61% 45%; /* #2DB8B5 */
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 227 44% 22%; /* #202B52 (Navy) */
+    --secondary-foreground: 0 0% 100%;
+    
+    --accent: 168 68% 73%; /* #8BE9D7 (Mint) */
+    --accent-foreground: 227 44% 22%;
+    
+    --accent-green: 124 68% 68%; /* #7AE582 */
+    --accent-green-foreground: 227 44% 22%;
+    
+    --background: 210 33% 98%; 
+    --foreground: 230 53% 23%; 
+    
+    --card: 0 0% 100%; 
+    --card-foreground: 230 53% 23%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 230 53% 23%;
+    
+    --muted: 210 20% 96%;
+    --muted-foreground: 220 9% 46%; 
+    
+    --border: 220 13% 91%; 
+    --input: 220 13% 91%;
+    --ring: 178 61% 45%;
+    
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --radius: 1rem; /* 16px */
+
+    /* Advanced Rehabilitation Interval System Tokens */
+    --timer-primary: 178 61% 45%;
+    --timer-accent: 168 68% 73%;
+    --timer-background: 227 44% 12%;
+    --timer-foreground: 0 0% 100%;
+    --timer-rest: 220 13% 91%;
+    --timer-work: 124 68% 68%;
+    --timer-prepare: 38 92% 50%;
+  }
+  
+  .dark {
+    --background: 227 44% 12%;
+    --foreground: 210 33% 98%;
+    
+    --primary: 178 61% 45%;
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 227 44% 18%;
+    --secondary-foreground: 210 33% 98%;
+    
+    --muted: 227 44% 18%;
+    --muted-foreground: 217 33% 70%;
+    
+    --accent: 168 68% 73%;
+    --accent-foreground: 227 44% 12%;
+    
+    --accent-green: 124 68% 68%;
+    --accent-green-foreground: 227 44% 12%;
+    
+    --card: 227 44% 15%;
+    --card-foreground: 210 33% 98%;
+    
+    --popover: 227 44% 15%;
+    --popover-foreground: 210 33% 98%;
+    
+    --border: 227 44% 25%;
+    --input: 227 44% 25%;
+    --ring: 178 61% 45%;
+
+    --timer-background: 227 44% 8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground transition-colors duration-300;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    overflow-x: hidden;
+    line-height: 1.625;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    text-wrap: balance;
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .shadow-soft {
+    box-shadow: 0 12px 40px -12px rgba(32, 43, 82, 0.08);
+  }
+  .shadow-soft-lg {
+    box-shadow: 0 20px 50px -15px rgba(32, 43, 82, 0.12);
+  }
+
+  .glass {
+    @apply bg-white/70 dark:bg-secondary/70 backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-soft;
+  }
+
+  .timer-glass {
+    @apply bg-[hsl(var(--timer-background))]/80 backdrop-blur-2xl border border-white/10;
+  }
+
+  .text-timer-display {
+    @apply font-bold tracking-tighter;
+    font-variant-numeric: tabular-nums;
+  }
+}

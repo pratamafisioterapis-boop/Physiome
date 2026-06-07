@@ -1,0 +1,173 @@
+
+import React, { useState, useEffect } from 'react';
+import { Search, Save, GripVertical, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import pb from '@/lib/pocketbaseClient.js';
+import Sidebar from '@/components/Sidebar.jsx';
+import Header from '@/components/Header.jsx';
+import { toast } from 'sonner';
+
+export default function ProgramBuilderPage() {
+  const [exercises, setExercises] = useState([]);
+  const [search, setSearch] = useState('');
+  const [programName, setProgramName] = useState('');
+  const [programDesc, setProgramDesc] = useState('');
+  const [canvasItems, setCanvasItems] = useState([]);
+
+  useEffect(() => {
+    pb.collection('exercises').getList(1, 20, { $autoCancel: false }).then(res => setExercises(res.items));
+  }, []);
+
+  const addToCanvas = (ex) => {
+    const newItem = {
+      ...ex,
+      uniqueId: Math.random().toString(36).substr(2, 9),
+      sets: 3,
+      reps: 10,
+      holdTime: 0
+    };
+    setCanvasItems([...canvasItems, newItem]);
+  };
+
+  const removeFromCanvas = (uniqueId) => {
+    setCanvasItems(canvasItems.filter(item => item.uniqueId !== uniqueId));
+  };
+
+  const handleSave = async () => {
+    if(!programName) return toast.error("Please name the program.");
+    if(canvasItems.length === 0) return toast.error("Add at least one exercise.");
+    
+    try {
+      await pb.collection('programs').create({
+        name: programName,
+        description: programDesc,
+        exercises_list: canvasItems,
+        clinic_id: pb.authStore.model.clinic_id,
+        created_by: pb.authStore.model.id,
+        status: 'Active'
+      }, { $autoCancel: false });
+      toast.success("Program saved successfully.");
+      setProgramName('');
+      setProgramDesc('');
+      setCanvasItems([]);
+    } catch(e) {
+      toast.error(e.message);
+    }
+  };
+
+  const filteredLib = exercises.filter(e => e.name.toLowerCase().includes(search.toLowerCase()));
+
+  return (
+    <div className="flex min-h-screen bg-background">
+      <Sidebar />
+      <div className="flex-1 ml-64 flex flex-col h-screen overflow-hidden">
+        <Header title="Program Builder" />
+        
+        {/* Top Bar */}
+        <div className="bg-card border-b border-border p-4 flex items-center justify-between z-10 shadow-sm">
+          <div className="flex-1 flex gap-4 max-w-3xl">
+            <Input 
+              placeholder="Program Name" 
+              value={programName}
+              onChange={e => setProgramName(e.target.value)}
+              className="font-bold text-lg bg-background border-border" 
+            />
+            <Input 
+              placeholder="Short Description" 
+              value={programDesc}
+              onChange={e => setProgramDesc(e.target.value)}
+              className="bg-background border-border" 
+            />
+          </div>
+          <Button onClick={handleSave} className="shadow-glow-primary rounded-full px-8">
+            <Save className="w-4 h-4 mr-2" /> Save Program
+          </Button>
+        </div>
+
+        <div className="flex-1 flex overflow-hidden">
+          {/* Library Sidebar (Left) */}
+          <div className="w-80 bg-muted/30 border-r border-border flex flex-col h-full overflow-hidden">
+            <div className="p-4 border-b border-border/50 bg-card">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input 
+                  placeholder="Find exercises..." 
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  className="pl-9 bg-background" 
+                />
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {filteredLib.map(ex => (
+                <Card key={ex.id} className="cursor-pointer hover:border-primary transition-colors shadow-sm" onClick={() => addToCanvas(ex)}>
+                  <CardContent className="p-3 flex items-center gap-3">
+                    <div className="w-12 h-12 bg-secondary/10 rounded-lg flex-shrink-0 bg-cover bg-center" style={{backgroundImage: `url(${ex.thumbnail_url || ''})`}} />
+                    <div className="flex-1 overflow-hidden">
+                      <h4 className="text-sm font-semibold truncate text-foreground">{ex.name}</h4>
+                      <p className="text-xs text-muted-foreground truncate">{ex.body_region}</p>
+                    </div>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-primary shrink-0"><Plus className="w-4 h-4" /></Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Canvas (Right) */}
+          <div className="flex-1 bg-background overflow-y-auto p-8">
+            <div className="max-w-3xl mx-auto">
+              {canvasItems.length === 0 ? (
+                <div className="text-center py-24 border-2 border-dashed border-border rounded-2xl">
+                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Plus className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-xl font-bold text-foreground mb-2">Program Canvas is Empty</h3>
+                  <p className="text-muted-foreground">Click exercises from the library to add them to this program.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {canvasItems.map((item, idx) => (
+                    <Card key={item.uniqueId} className="border border-border/50 shadow-soft relative group">
+                      <div className="absolute left-0 top-0 bottom-0 w-8 flex flex-col items-center justify-center cursor-move text-muted-foreground hover:text-foreground opacity-50 group-hover:opacity-100 transition-opacity border-r border-border/50 bg-muted/50 rounded-l-xl">
+                        <GripVertical className="w-4 h-4" />
+                      </div>
+                      <CardContent className="p-5 pl-12">
+                        <div className="flex justify-between items-start mb-4">
+                          <h4 className="font-bold text-lg text-foreground">{item.name}</h4>
+                          <Button variant="ghost" size="sm" className="text-destructive h-8" onClick={() => removeFromCanvas(item.uniqueId)}>Remove</Button>
+                        </div>
+                        <div className="grid grid-cols-3 gap-4 mb-4">
+                          <div className="space-y-1">
+                            <label className="text-xs font-semibold text-muted-foreground uppercase">Sets</label>
+                            <Input type="number" defaultValue={item.sets} className="h-9 bg-card" />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-xs font-semibold text-muted-foreground uppercase">Reps</label>
+                            <Input type="number" defaultValue={item.reps} className="h-9 bg-card" />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-xs font-semibold text-muted-foreground uppercase">Hold (sec)</label>
+                            <Input type="number" defaultValue={item.holdTime} className="h-9 bg-card" />
+                          </div>
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-semibold text-muted-foreground uppercase">Notes for Patient</label>
+                          <Textarea placeholder="Add specific instructions..." className="min-h-[60px] resize-none bg-card" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
