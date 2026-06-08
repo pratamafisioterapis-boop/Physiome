@@ -301,9 +301,10 @@ export default defineConfig({
 			'Cross-Origin-Embedder-Policy': 'credentialless',
 		},
 		allowedHosts: [
-			'.app-preview.com',
-			'.app-preview.io',
-		],
+  '.app-preview.com',
+  '.app-preview.io',
+  '.railway.app',
+],
 		fs: {
 			strict: true,
 			allow: [
