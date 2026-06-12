@@ -2,7 +2,16 @@ const API_SERVER_URL = '/hcgi/api';
 
 const apiServerClient = {
     fetch: async (url, options = {}) => {
-        const response = await window.fetch(API_SERVER_URL + url, options);
+        // Ambil token dari localStorage
+        const token = localStorage.getItem('auth_token');
+
+        // Gabungkan headers yang ada dengan Authorization header jika token tersedia
+        const headers = {
+            ...options.headers,
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        };
+
+        const response = await window.fetch(API_SERVER_URL + url, { ...options, headers });
 
         if (!response.ok) {
             // Coba parse body error, jika gagal, gunakan statusText

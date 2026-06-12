@@ -18,7 +18,7 @@ router.get('/:userId', async (req, res, next) => {
 
   try {
     const preference = await prisma.user_language_preferences.findFirst({
-      where: { user_id: userId }
+      where: { userId: userId }
     });
 
     if (!preference) {
@@ -39,28 +39,22 @@ router.get('/:userId', async (req, res, next) => {
 
 // POST / - Buat preferensi bahasa baru
 router.post('/', async (req, res, next) => {
-  const { user_id, preferred_language, app_language, exercise_language, reminder_language } = req.body;
+  const { userId, user_id, preferred_language, app_language, exercise_language, reminder_language } = req.body;
+  const targetId = userId || user_id;
 
   // Verifikasi bahwa pengguna yang diautentikasi memiliki izin untuk membuat preferensi ini
-  if (req.userId !== user_id && req.userRole !== 'admin') {
+  if (req.userId !== targetId && req.userRole !== 'admin') {
     return res.status(403).json({ error: 'Forbidden: Anda hanya dapat membuat preferensi bahasa untuk diri sendiri.' });
   }
 
   try {
-    // Generate ID unik manual (sesuai format PocketBase ID)
-    const id = Math.random().toString(36).substring(2, 17);
-    const now = new Date().toISOString();
-
     const newPref = await prisma.user_language_preferences.create({
       data: {
-        id,
-        user_id,
+        userId: targetId,
         preferred_language,
         app_language,
         exercise_language,
         reminder_language,
-        created: now,
-        updated: now
       }
     });
     res.status(201).json(newPref); // 201 Created
@@ -81,7 +75,7 @@ router.put('/:userId', async (req, res, next) => {
 
   try {
     const existingPreference = await prisma.user_language_preferences.findFirst({
-      where: { user_id: userId }
+      where: { userId: userId }
     });
 
     if (!existingPreference) {
@@ -89,10 +83,9 @@ router.put('/:userId', async (req, res, next) => {
     }
 
     const updated = await prisma.user_language_preferences.update({
-      where: { id: existingPreference.id }, // Update berdasarkan ID unik preferensi
+      where: { userId: userId }, // Update berdasarkan userId
       data: {
-        ...data,
-        updated: new Date().toISOString()
+        ...data // Prisma akan otomatis mengelola updated_at jika diatur di schema
       }
     });
     res.json(updated);

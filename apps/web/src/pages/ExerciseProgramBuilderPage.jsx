@@ -150,7 +150,7 @@ const ExerciseProgramBuilderPage = () => {
       <Helmet><title>{id ? 'Edit Program' : 'Build Program'} | Physiome</title></Helmet>
       <div className="min-h-screen bg-background flex flex-col md:flex-row h-screen overflow-hidden">
         <Sidebar />
-        <div className="flex-1 flex flex-col min-w-0 h-full">
+        <div className="flex-1 ml-0 md:ml-64 flex flex-col min-w-0 h-full">
           <Header />
           
           <div className="flex items-center justify-between p-4 border-b border-border bg-card shrink-0 shadow-sm z-10">

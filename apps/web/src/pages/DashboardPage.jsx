@@ -30,7 +30,7 @@ const DashboardPage = () => {
       <Helmet><title>Dashboard | Physiome</title></Helmet>
       <div className="min-h-screen bg-background flex flex-col md:flex-row">
         <Sidebar />
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 ml-0 md:ml-64 flex flex-col min-w-0">
           <Header />
           <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
             <div className="max-w-7xl mx-auto space-y-8">
@@ -40,7 +40,7 @@ const DashboardPage = () => {
                 <p className="text-muted-foreground mt-1">Here's what's happening at your clinic today.</p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
                 <StatCard title="Active Patients" value="124" icon={Users} trend="12%" trendUp />
                 <StatCard title="Today's Appointments" value="18" icon={Calendar} trend="2" trendUp />
                 <StatCard title="Active Programs" value="86" icon={Dumbbell} trend="5%" trendUp />

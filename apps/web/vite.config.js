@@ -295,6 +295,10 @@ export default defineConfig({
 	],
 	server: {
 		port: 3000,
+		hmr: {
+			host: 'localhost',
+			clientPort: 3000,
+		},
 		proxy: {
 			'/hcgi/api': {
 				target: 'http://localhost:3003',// Mengubah target proxy ke port backend yang sebenarnya

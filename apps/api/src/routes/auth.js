@@ -1,10 +1,11 @@
 import express from 'express';
-import prisma from '../utils/prismaClient.js'; // Mengganti PocketBase client dengan Prisma
-import logger from '../utils/logger.js';
 import bcrypt from 'bcrypt'; // Untuk hashing password
 import jwt from 'jsonwebtoken'; // Untuk JSON Web Tokens
+import { v4 as uuidv4 } from 'uuid'; // Untuk menghasilkan UUID
+import prisma from '../utils/prismaClient.js'; // Mengganti PocketBase client dengan Prisma
+import logger from '../utils/logger.js';
 import { jwtAuth } from '../middleware/jwt-auth.js'; // Middleware autentikasi JWT
-
+ 
 const router = express.Router();
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_super_secret_jwt_key'; // Pastikan ini ada di .env Anda
@@ -22,7 +23,7 @@ router.post('/login', async (req, res, next) => {
   try {
     const user = await prisma.users.findUnique({
       where: { email },
-      select: { id: true, email: true, password: true, role: true, full_name: true, clinic_id: true } // Ambil password untuk verifikasi
+      select: { id: true, email: true, password: true, role: true, fullName: true, clinic_id: true }
     });
 
     if (!user) {
@@ -30,7 +31,11 @@ router.post('/login', async (req, res, next) => {
     }
 
     // Verifikasi password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    // Mendukung transisi: cek bcrypt, jika gagal cek plain text (untuk data demo)
+    const isPasswordValid = user.password.startsWith('$2b$') 
+      ? await bcrypt.compare(password, user.password)
+      : password === user.password;
+      
     if (!isPasswordValid) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
@@ -39,7 +44,7 @@ router.post('/login', async (req, res, next) => {
     const token = jwt.sign(
       { userId: user.id, userRole: user.role, clinicId: user.clinic_id },
       JWT_SECRET,
-      { expiresIn: '1h' } // Token berlaku 1 jam
+      { expiresIn: '7d' } // Token berlaku 7 hari untuk pengembangan
     );
 
     // Hapus password dari objek user sebelum dikirim ke frontend
@@ -62,7 +67,7 @@ router.get('/me', jwtAuth, async (req, res, next) => {
     // req.userId diset oleh middleware jwtAuth
     const user = await prisma.users.findUnique({
       where: { id: req.userId },
-      select: { id: true, email: true, role: true, full_name: true, clinic_id: true }
+      select: { id: true, email: true, role: true, fullName: true, clinic_id: true }
     });
 
     if (!user) return res.status(404).json({ error: 'User not found' });
@@ -70,6 +75,23 @@ router.get('/me', jwtAuth, async (req, res, next) => {
     res.json(user);
   } catch (error) {
     logger.error('Error fetching current user:', error);
+    next(error);
+  }
+});
+
+// Endpoint Update User Profile (Protected)
+// PATCH /auth/update-profile
+router.patch('/update-profile', jwtAuth, async (req, res, next) => {
+  const data = req.body;
+  try {
+    const updatedUser = await prisma.users.update({
+      where: { id: req.userId },
+      data: data,
+      select: { id: true, email: true, role: true, fullName: true, clinic_id: true }
+    });
+    res.json(updatedUser);
+  } catch (error) {
+    logger.error('Error updating user profile:', error);
     next(error);
   }
 });
@@ -95,7 +117,7 @@ router.post('/validate-invite-code', async (req, res) => {
 
   // Check if code is active
   if (!inviteCode.is_active) {
-    throw new Error('Code is invalid');
+    return res.status(400).json({ error: 'Code is invalid' });
   }
 
   // Check if code is expired (expires_at is null or in future)
@@ -126,6 +148,15 @@ router.post('/register', async (req, res) => {
 
   if (!email || !password || !fullName) {
     return res.status(400).json({ error: 'email, password, and fullName are required' });
+  }
+
+  // Check if user already exists
+  const existingUser = await prisma.users.findUnique({
+    where: { email }
+  });
+
+  if (existingUser) {
+    return res.status(400).json({ error: 'Email is already registered' });
   }
 
   let role = 'therapist'; // Default role
@@ -162,14 +193,16 @@ router.post('/register', async (req, res) => {
     // Extract role from validated code
     role = inviteCodeRecord.role;
 
-    // Create user in pb.collection('users')
+    const userId = uuidv4();
+
     const newUser = await prisma.users.create({
       data: {
+        id: userId,
         email,
         password: hashedPassword,
-        full_name: fullName,
+        fullName: fullName,
         role,
-        invite_code: inviteCodeRecord.id,
+        invite_code_id: inviteCodeRecord.id,
       },
       select: { id: true, email: true, role: true }
     });
@@ -180,10 +213,17 @@ router.post('/register', async (req, res) => {
       data: { used_by: newUser.id, is_active: false }
     });
 
+    const token = jwt.sign(
+      { userId: newUser.id, userRole: newUser.role, clinicId: newUser.clinic_id }, // Sertakan clinic_id
+      JWT_SECRET, // Gunakan JWT_SECRET yang sama
+      { expiresIn: '7d' } // Token berlaku 7 hari untuk pengembangan
+    );
+
     logger.info(`User registered with invite code: ${newUser.id}`);
 
     res.json({
       success: true,
+      token,
       user: {
         id: newUser.id,
         email: newUser.email,
@@ -192,21 +232,31 @@ router.post('/register', async (req, res) => {
     });
   } else {
     // No invite code provided, create user with default role
+    const userId = uuidv4();
+
     const newUser = await prisma.users.create({
       data: {
+        id: userId,
         email,
         password: hashedPassword, // Simpan password yang sudah di-hash
-        full_name: fullName, // Sesuaikan dengan nama kolom di tabel users Anda
+        fullName: fullName,
         // passwordConfirm tidak diperlukan di Prisma
         role,
       },
       select: { id: true, email: true, role: true }
     });
 
+    const token = jwt.sign(
+      { userId: newUser.id, userRole: newUser.role, clinicId: newUser.clinic_id }, // Sertakan clinic_id
+      JWT_SECRET, // Gunakan JWT_SECRET yang sama
+      { expiresIn: '7d' } // Token berlaku 7 hari untuk pengembangan
+    );
+
     logger.info(`User registered without invite code: ${newUser.id}`);
 
     res.json({
       success: true,
+      token,
       user: {
         id: newUser.id,
         email: newUser.email,

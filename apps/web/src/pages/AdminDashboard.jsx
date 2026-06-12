@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import pb from '@/lib/pocketbaseClient';
+import apiServerClient from '@/lib/apiServerClient.js';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
 
@@ -30,25 +30,12 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const fetchDashboardData = async () => {
-      if (!currentUser?.clinic_id) return;
       try {
-        const [patientsRes, therapistsRes, programsRes, appointmentsRes] = await Promise.all([
-          pb.collection('patients').getList(1, 50, { filter: `clinic_id="${currentUser.clinic_id}"`, $autoCancel: false }),
-          pb.collection('therapists').getList(1, 50, { filter: `clinic_id="${currentUser.clinic_id}"`, $autoCancel: false }),
-          pb.collection('exercise_programs').getList(1, 50, { filter: `clinic_id="${currentUser.clinic_id}"`, $autoCancel: false }),
-          pb.collection('appointments').getList(1, 50, { filter: `clinic_id="${currentUser.clinic_id}"`, $autoCancel: false })
-        ]);
-
-        setStats({
-          patients: patientsRes.totalItems,
-          therapists: therapistsRes.totalItems,
-          programs: programsRes.totalItems,
-          appointments: appointmentsRes.totalItems,
-          adherence: 78 // Mocked for simplicity
-        });
-
-        setTherapists(therapistsRes.items);
-        setPatients(patientsRes.items);
+        const data = await apiServerClient.fetch('/dashboard/admin-stats');
+        setStats(data);
+        // Data tabel sementara diset kosong sampai rute CRUD user dibuat
+        setTherapists([]);
+        setPatients([]);
         
         // Mock activities
         setActivities([
@@ -81,7 +68,7 @@ export default function AdminDashboard() {
       <Helmet><title>Admin Dashboard | Physiome</title></Helmet>
       <div className="min-h-screen bg-background flex flex-col md:flex-row">
         <Sidebar />
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 ml-0 md:ml-64 flex flex-col min-w-0">
           <Header />
           <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
             <div className="max-w-7xl mx-auto space-y-8">
@@ -98,7 +85,7 @@ export default function AdminDashboard() {
               </div>
 
               {/* Stats Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                 {[
                   { title: 'Active Patients', value: stats.patients, icon: Users },
                   { title: 'Therapists', value: stats.therapists, icon: Activity },
@@ -172,46 +159,50 @@ export default function AdminDashboard() {
                         <TabsTrigger value="patients">Patients</TabsTrigger>
                       </TabsList>
                       <TabsContent value="therapists">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Name</TableHead>
-                              <TableHead>Email</TableHead>
-                              <TableHead>Status</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {isLoading ? (
-                              <TableRow><TableCell colSpan={3}><Skeleton className="h-12 w-full" /></TableCell></TableRow>
-                            ) : therapists.map(t => (
-                              <TableRow key={t.id}>
-                                <TableCell className="font-medium">{t.name}</TableCell>
-                                <TableCell>{t.email}</TableCell>
-                                <TableCell><span className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs">Active</span></TableCell>
+                        <div className="overflow-x-auto border rounded-md">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Name</TableHead>
+                                <TableHead className="hidden sm:table-cell">Email</TableHead>
+                                <TableHead>Status</TableHead>
                               </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
+                            </TableHeader>
+                            <TableBody>
+                              {isLoading ? (
+                                <TableRow><TableCell colSpan={3}><Skeleton className="h-12 w-full" /></TableCell></TableRow>
+                              ) : therapists.map(t => (
+                                <TableRow key={t.id}>
+                                  <TableCell className="font-medium">{t.name}</TableCell>
+                                  <TableCell className="hidden sm:table-cell">{t.email}</TableCell>
+                                  <TableCell><span className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs">Active</span></TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
                       </TabsContent>
                       <TabsContent value="patients">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Name</TableHead>
-                              <TableHead>Status</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {isLoading ? (
-                              <TableRow><TableCell colSpan={2}><Skeleton className="h-12 w-full" /></TableCell></TableRow>
-                            ) : patients.map(p => (
-                              <TableRow key={p.id}>
-                                <TableCell className="font-medium">{p.full_name}</TableCell>
-                                <TableCell><span className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs">{p.status}</span></TableCell>
+                        <div className="overflow-x-auto border rounded-md">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Name</TableHead>
+                                <TableHead>Status</TableHead>
                               </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
+                            </TableHeader>
+                            <TableBody>
+                              {isLoading ? (
+                                <TableRow><TableCell colSpan={2}><Skeleton className="h-12 w-full" /></TableCell></TableRow>
+                              ) : patients.map(p => (
+                                <TableRow key={p.id}>
+                                  <TableCell className="font-medium">{p.full_name}</TableCell>
+                                  <TableCell><span className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs">{p.status}</span></TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
                       </TabsContent>
                     </Tabs>
                   </CardContent>

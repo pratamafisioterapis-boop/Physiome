@@ -2,7 +2,7 @@
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 import { useLanguage } from '@/hooks/useLanguage.js';
-import { Bell, User, LogOut, Settings, Globe } from 'lucide-react';
+import { Bell, User, LogOut, Settings, Globe, Menu } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   DropdownMenu,
@@ -13,7 +13,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import LanguageSwitcher from '@/components/LanguageSwitcher.jsx';
+import { SidebarContent } from '@/components/Sidebar.jsx';
 
 const Header = () => {
   const { currentUser, logout } = useAuth();
@@ -29,17 +31,32 @@ const Header = () => {
   
   return (
     <header className="bg-card border-b border-border sticky top-0 z-40">
-      <div className="flex items-center justify-between h-16 px-6">
+      <div className="flex items-center justify-between h-16 px-4 md:px-6">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+          {/* Hamburger Menu untuk Mobile */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="md:hidden">
+                <Menu className="w-5 h-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="p-0 w-72">
+              <div className="p-6 border-b border-border/50">
+                <SheetTitle className="text-xl font-bold text-primary">Physiome</SheetTitle>
+              </div>
+              <SidebarContent />
+            </SheetContent>
+          </Sheet>
+
+          <div className="w-8 h-8 bg-primary rounded-lg hidden md:flex items-center justify-center">
             <span className="text-primary-foreground font-bold text-lg">P</span>
           </div>
-          <span className="text-xl font-bold text-foreground">Physiome</span>
+          <span className="text-xl font-bold text-foreground hidden sm:block">Physiome</span>
         </div>
         
-        <div className="flex-1 flex justify-center">
+        <div className="flex-1 flex justify-center px-2">
           <span className="text-sm font-medium text-muted-foreground capitalize">
-            {currentUser?.clinic_id ? t('common.clinicDashboard') : t('common.welcome')} • {userRole}
+            {currentUser?.clinic_id ? t('common.clinicDashboard') : t('common.welcome')}
           </span>
         </div>
         

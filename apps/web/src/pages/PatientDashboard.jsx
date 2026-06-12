@@ -7,7 +7,7 @@ import { Activity, Calendar, Dumbbell, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import pb from '@/lib/pocketbaseClient';
+import apiServerClient from '@/lib/apiServerClient.js';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 import { useNavigate } from 'react-router-dom';
 
@@ -22,13 +22,9 @@ export default function PatientDashboard() {
     const fetchPatientData = async () => {
       if (!currentUser?.id) return;
       try {
-        const [programsRes, appointmentsRes] = await Promise.all([
-          pb.collection('program_assignments').getList(1, 5, { filter: `patient_id="${currentUser.id}"`, expand: 'program_id', $autoCancel: false }),
-          pb.collection('appointments').getList(1, 5, { filter: `patient_id="${currentUser.id}" && date >= @now`, sort: 'date', $autoCancel: false })
-        ]);
-
-        setPrograms(programsRes.items);
-        setAppointments(appointmentsRes.items);
+        const data = await apiServerClient.fetch('/dashboard/patient-stats');
+        setPrograms(data.programs);
+        setAppointments(data.appointments);
       } catch (error) {
         console.error('Error fetching patient data:', error);
       } finally {
@@ -44,7 +40,7 @@ export default function PatientDashboard() {
       <Helmet><title>My Dashboard | Physiome</title></Helmet>
       <div className="min-h-screen bg-background flex flex-col md:flex-row">
         <Sidebar />
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 ml-0 md:ml-64 flex flex-col min-w-0">
           <Header />
           <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
             <div className="max-w-5xl mx-auto space-y-8">
@@ -55,7 +51,7 @@ export default function PatientDashboard() {
               </div>
 
               {/* Progress Summary */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 <Card className="bg-primary text-primary-foreground border-none shadow-lg">
                   <CardContent className="p-6">
                     <Dumbbell className="w-6 h-6 mb-4 opacity-80" />

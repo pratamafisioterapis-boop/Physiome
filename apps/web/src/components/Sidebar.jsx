@@ -11,17 +11,10 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
 
-export default function Sidebar() {
+export const SidebarContent = () => {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
   const role = currentUser?.role || 'therapist';
-
-  const handleLogout = () => {
-    logout();
-    toast.success('Logged out successfully');
-    navigate('/login');
-  };
-
   const menuGroups = [
     {
       title: 'General',
@@ -53,17 +46,8 @@ export default function Sidebar() {
   ];
 
   return (
-    <div className="w-64 bg-card border-r border-border h-screen flex flex-col fixed left-0 top-0 z-40">
-      <div className="p-6 border-b border-border/50">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-xl">
-            P
-          </div>
-          <span className="font-bold text-xl tracking-tight text-foreground">Physiome</span>
-        </div>
-      </div>
-      
-      <ScrollArea className="flex-1 py-6 px-4">
+    <div className="flex flex-col h-full">
+      <ScrollArea className="flex-1 py-4 px-4">
         <div className="space-y-8">
           {menuGroups.map((group, idx) => {
             const visibleItems = group.items.filter(item => item.roles.includes(role));
@@ -110,11 +94,34 @@ export default function Sidebar() {
         <Button 
           variant="outline" 
           className="w-full justify-start text-muted-foreground hover:text-destructive hover:bg-destructive/10 border-transparent"
-          onClick={handleLogout}
+          onClick={() => {
+            logout();
+            toast.success('Logged out successfully');
+            navigate('/login');
+          }}
         >
           <LogOut className="w-4 h-4 mr-2" />
           Logout
         </Button>
+      </div>
+    </div>
+  );
+};
+
+export default function Sidebar() {
+  return (
+    <div className="w-64 bg-card border-r border-border h-screen flex-col fixed left-0 top-0 z-40 hidden md:flex">
+      <div className="p-6 border-b border-border/50">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold text-xl">
+            P
+          </div>
+          <span className="font-bold text-xl tracking-tight text-foreground">Physiome</span>
+        </div>
+      </div>
+      
+      <div className="flex-1 overflow-hidden">
+        <SidebarContent />
       </div>
     </div>
   );

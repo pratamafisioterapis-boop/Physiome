@@ -1,5 +1,4 @@
-
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import i18n from '@/lib/i18n.js';
 import apiServerClient from '@/lib/apiServerClient.js'; // Import apiServerClient
@@ -7,25 +6,23 @@ import { useAuth } from './AuthContext.jsx'; // Import useAuth to get currentUse
 
 export const LanguageContext = createContext(null);
 
-export const syncLanguagePreference = async (userId) => {
-  try {
-    // Fetch language preferences from the new backend API
-    const response = await apiServerClient.fetch(`/user-preferences/language/${userId}`);
-    
-    if (response && response.preferred_language) {
-      const lng = response.preferred_language;
-      i18n.changeLanguage(lng);
-      localStorage.setItem('i18nextLng', lng);
-    }
-  } catch (error) {
-    console.error('Failed to sync language preference:', error);
-  }
-};
-
 export const LanguageProvider = ({ children }) => {
   const { currentUser } = useAuth(); // Get currentUser from AuthContext
   const { t, i18n: i18nInstance } = useTranslation();
   const [language, setLanguageState] = useState(i18nInstance.language || localStorage.getItem('i18nextLng') || 'en');
+
+  const syncLanguagePreference = useCallback(async (userId) => {
+    try {
+      const response = await apiServerClient.fetch(`/user-preferences/language/${userId}`);
+      if (response && response.preferred_language) {
+        const lng = response.preferred_language;
+        i18nInstance.changeLanguage(lng);
+        localStorage.setItem('i18nextLng', lng);
+      }
+    } catch (error) {
+      console.error('Failed to sync language preference:', error);
+    }
+  }, [i18nInstance]);
 
   useEffect(() => {
     const handleLangChange = (lng) => setLanguageState(lng);

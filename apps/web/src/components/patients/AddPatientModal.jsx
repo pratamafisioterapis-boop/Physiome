@@ -6,7 +6,7 @@ import Input from '@/components/Input.jsx';
 import Select from '@/components/Select.jsx';
 import DatePicker from '@/components/DatePicker.jsx';
 import TextArea from '@/components/TextArea.jsx';
-import pb from '@/lib/pocketbaseClient';
+import apiServerClient from '@/lib/apiServerClient.js';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 import { toast } from 'sonner';
 
@@ -49,33 +49,38 @@ const AddPatientModal = ({ isOpen, onClose, onSuccess }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const newErrors = validate();
-    
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      toast.error('Please fill in all required fields');
       return;
     }
 
     setIsLoading(true);
     try {
-      const dataToSubmit = {
-        ...formData,
-        date_of_birth: formData.date_of_birth + " 12:00:00.000Z", // Append time for PB format
-        clinic_id: currentUser.clinic_id
-      };
-      
-      await pb.collection('patients').create(dataToSubmit, { $autoCancel: false });
-      toast.success('Patient added successfully');
-      onSuccess();
-      onClose();
-      // Reset form
-      setFormData({
-        full_name: '', gender: '', date_of_birth: '', phone: '', email: '',
-        address: '', occupation: '', main_complaint: '', diagnosis: '', status: 'Active'
+      await apiServerClient.fetch('/patients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          full_name: formData.full_name,
+          email: formData.email,
+          phone: formData.phone,
+          gender: formData.gender,
+          birth_date: formData.date_of_birth,
+          address: formData.address,
+          occupation: formData.occupation,
+          main_complaint: formData.main_complaint,
+          diagnosis: formData.diagnosis,
+          status: formData.status
+        })
       });
+      
+      toast.success('Patient added successfully');
+      onSuccess(); // Memanggil fetchPatients di PatientListPage
+      onClose();
     } catch (error) {
-      console.error(error);
-      toast.error('Failed to add patient. Please try again.');
+      toast.error(error.message || 'Failed to add patient');
     } finally {
       setIsLoading(false);
     }
@@ -86,7 +91,7 @@ const AddPatientModal = ({ isOpen, onClose, onSuccess }) => {
       <Button variant="outline" onClick={onClose} disabled={isLoading} type="button">
         Cancel
       </Button>
-      <Button variant="primary" onClick={handleSubmit} disabled={isLoading} type="submit">
+      <Button variant="primary" disabled={isLoading} type="submit" form="add-patient-form">
         {isLoading ? 'Saving...' : 'Add Patient'}
       </Button>
     </div>

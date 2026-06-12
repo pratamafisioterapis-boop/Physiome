@@ -56,7 +56,7 @@ const ExerciseProgramListPage = () => {
       <Helmet><title>Exercise Programs | Physiome</title></Helmet>
       <div className="min-h-screen bg-background flex flex-col md:flex-row">
         <Sidebar />
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 ml-0 md:ml-64 flex flex-col min-w-0">
           <Header />
           <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
             <div className="max-w-7xl mx-auto space-y-6">

@@ -16,7 +16,7 @@ export async function jwtAuth(req, res, next) {
 		// Cari user di database MySQL untuk memastikan user masih ada dan aktif
 		const user = await prisma.users.findUnique({
 			where: { id: decoded.userId }, // Sesuaikan dengan kolom ID di tabel users Anda
-			select: { id: true, role: true, clinic_id: true } // Ambil data yang diperlukan
+			select: { id: true, role: true, clinic_id: true } 
 		});
 
 		if (!user) {

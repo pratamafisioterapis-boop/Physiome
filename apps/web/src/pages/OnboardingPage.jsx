@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext.jsx';
-import pb from '@/lib/pocketbaseClient';
+import apiServerClient from '@/lib/apiServerClient.js';
 import Button from '@/components/Button.jsx';
 import Input from '@/components/Input.jsx';
 import { Check } from 'lucide-react';
@@ -83,21 +83,24 @@ const OnboardingPage = () => {
   const handleComplete = async () => {
     setIsLoading(true);
     try {
-      const clinic = await pb.collection('clinics').create({
-        name: clinicData.name,
-        phone: clinicData.phone,
-        address: clinicData.address,
-        city: clinicData.city,
-        created_by: currentUser.id
-      }, { $autoCancel: false });
+      // 1. Create the clinic
+      const clinic = await apiServerClient.fetch('/clinics', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(clinicData)
+      });
       
-      await pb.collection('therapists').create({
-        name: therapistData.name,
-        email: therapistData.email,
-        phone: therapistData.phone,
-        clinic_id: clinic.id
-      }, { $autoCancel: false });
+      // 2. Update current user's profile with therapist info and clinic_id
+      await apiServerClient.fetch('/auth/update-profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: therapistData.name,
+          clinic_id: clinic.id
+        })
+      });
       
+      // 3. Update state locally
       await updateUserClinicId(clinic.id);
       
       navigate('/dashboard');

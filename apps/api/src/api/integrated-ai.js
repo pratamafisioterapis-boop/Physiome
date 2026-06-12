@@ -2,7 +2,8 @@ import process from 'node:process';
 import { PassThrough, Readable } from 'node:stream';
 import { NodeEnv } from '../constants/common.js';
 import logger from '../utils/logger.js';
-import pocketbaseClient from '../utils/pocketbaseClient.js';
+import prisma from '../utils/prismaClient.js';
+import { v4 as uuidv4 } from 'uuid';
 
 const MessageRole = Object.freeze({
 	User: 'user',
@@ -151,17 +152,21 @@ const SquashableSSEEventTypes = new Set([
  * @param {{ files: Express.Multer.File[] }} params
  * @returns {Promise<string[]>}
  */
-export async function uploadImagesToPocketBase({ images }) {
+export async function uploadImagesToMySQL({ images }) {
 	const uploadPromises = images.map(async (file) => {
-		const formData = new FormData();
-		const blob = new Blob([file.buffer], { type: file.mimetype });
-		formData.append('file', blob, file.originalname);
+		const id = uuidv4(); // Generate UUID untuk ID
+		const fileName = `${Date.now()}-${file.originalname}`;
+		const fileUrl = `https://${process.env.WEBSITE_DOMAIN}/uploads/${fileName}`;
 
-		const record = await pocketbaseClient.collection('_integratedAiImages').create(formData);
+		await prisma.integratedAiImages.create({
+			data: { 
+				id: id,
+				filename: fileName, // Pastikan nama kolom sesuai schema.prisma
+				url: fileUrl
+			}
+		});
 
-		const url = pocketbaseClient.files.getURL(record, record.file);
-
-		return url.replace('http://localhost:8090', `https://${process.env.WEBSITE_DOMAIN}/hcgi/platform`);
+		return fileUrl;
 	});
 
 	return Promise.all(uploadPromises);
@@ -290,15 +295,17 @@ async function parseSSEEvents({ stream }) {
  * @returns {Promise<object>}
  */
 async function saveMessages({ userId, messages }) {
-	const batch = pocketbaseClient.createBatch();
+	const createPromises = messages.map(message => 
+		prisma.integrated_ai_messages.create({
+			data: {
+				userId: userId || '',
+				role: message.role,
+				content: message.content, // Prisma handle Json type
+			}
+		})
+	);
 
-	messages.map(message => batch.collection('_integratedAiMessages').create({
-		...(userId && { userId }),
-		role: message.role,
-		content: message.content,
-	}));
-
-	await batch.send();
+	await Promise.all(createPromises);
 }
 
 /**
@@ -312,9 +319,9 @@ export async function getHistory({ userId }) {
 		return [];
 	}
 
-	const records = await pocketbaseClient.collection('_integratedAiMessages').getFullList({
-		sort: 'created',
-		...(userId && { filter: pocketbaseClient.filter('userId = {:userId}', { userId }) }),
+	const records = await prisma.integrated_ai_messages.findMany({
+		where: { userId: userId },
+		orderBy: { created_at: 'asc' }
 	});
 
 	/** @type {HistoryMessage[]} */

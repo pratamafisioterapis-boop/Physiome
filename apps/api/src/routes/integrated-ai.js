@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { ContentBlockType, stream, uploadImagesToPocketBase } from '../api/integrated-ai.js';
+import { ContentBlockType, stream, uploadImagesToMySQL, getHistory } from '../api/integrated-ai.js';
 import { SystemPrompt } from '../constants/prompts.js';
 import { uploadFiles } from '../middleware/file-upload.js';
 import { integratedAiRateLimit } from '../middleware/integrated-ai-rate-limit.js';
@@ -8,6 +8,15 @@ import { jwtAuth } from '../middleware/jwt-auth.js';
 const router = Router();
 
 router.use(jwtAuth);
+
+router.get('/history', async (req, res, next) => {
+  try {
+    const history = await getHistory({ userId: req.userId });
+    res.json(history);
+  } catch (error) {
+    next(error);
+  }
+});
 
 router.post('/stream', integratedAiRateLimit, uploadFiles({
 	allowedMimeTypes: [
@@ -26,7 +35,7 @@ router.post('/stream', integratedAiRateLimit, uploadFiles({
 	const parsedMessage = JSON.parse(message);
 
 	if (req.files?.length > 0) {
-		const imageUrls = await uploadImagesToPocketBase({ images: req.files });
+		const imageUrls = await uploadImagesToMySQL({ images: req.files });
 		imageUrls.forEach((url) => {
 			parsedMessage.push({ type: ContentBlockType.Image, image: url });
 		});
