@@ -5,21 +5,34 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import pb from '@/lib/pocketbaseClient.js';
+import apiServerClient from '@/lib/apiServerClient.js';
+import { useAuth } from '@/contexts/AuthContext.jsx';
 import Sidebar from '@/components/Sidebar.jsx';
 import Header from '@/components/Header.jsx';
 import { toast } from 'sonner';
 
 export default function ProgramBuilderPage() {
+  const { currentUser } = useAuth();
   const [exercises, setExercises] = useState([]);
   const [search, setSearch] = useState('');
   const [programName, setProgramName] = useState('');
   const [programDesc, setProgramDesc] = useState('');
   const [canvasItems, setCanvasItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    pb.collection('exercises').getList(1, 20, { $autoCancel: false }).then(res => setExercises(res.items));
-  }, []);
+    const fetchExercises = async () => {
+      try {
+        const data = await apiServerClient.fetch('/exercises');
+        // Menangani jika API mengembalikan objek { data: [] } atau langsung array []
+        setExercises(Array.isArray(data) ? data : data.data || []);
+      } catch (error) {
+        console.error('Error fetching exercises:', error);
+        toast.error('Failed to load exercises library');
+      }
+    };
+    fetchExercises();
+  }, [currentUser]);
 
   const addToCanvas = (ex) => {
     const newItem = {
@@ -41,14 +54,15 @@ export default function ProgramBuilderPage() {
     if(canvasItems.length === 0) return toast.error("Add at least one exercise.");
     
     try {
-      await pb.collection('programs').create({
-        name: programName,
-        description: programDesc,
-        exercises_list: canvasItems,
-        clinic_id: pb.authStore.model.clinic_id,
-        created_by: pb.authStore.model.id,
-        status: 'Active'
-      }, { $autoCancel: false });
+      await apiServerClient.fetch('/programs', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: programName,
+          description: programDesc,
+          exercises_list: canvasItems,
+          status: 'Active'
+        })
+      });
       toast.success("Program saved successfully.");
       setProgramName('');
       setProgramDesc('');
@@ -82,7 +96,7 @@ export default function ProgramBuilderPage() {
               className="bg-background border-border" 
             />
           </div>
-          <Button onClick={handleSave} className="shadow-glow-primary rounded-full px-8">
+          <Button onClick={handleSave} className="shadow-glow-primary rounded-full px-8" disabled={isLoading}>
             <Save className="w-4 h-4 mr-2" /> Save Program
           </Button>
         </div>

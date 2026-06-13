@@ -15,9 +15,11 @@ import { Helmet } from 'react-helmet';
 import CreateAppointmentModal from '@/components/appointments/CreateAppointmentModal.jsx';
 import EditAppointmentModal from '@/components/appointments/EditAppointmentModal.jsx';
 import DeleteAppointmentConfirmation from '@/components/appointments/DeleteAppointmentConfirmation.jsx';
+import { useTranslation } from 'react-i18next';
 
 const AppointmentListPage = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { currentUser } = useAuth();
   
   const [appointments, setAppointments] = useState([]);
