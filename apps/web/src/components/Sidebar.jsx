@@ -10,37 +10,40 @@ import { cn } from '@/lib/utils.js';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 export const SidebarContent = () => {
   const { currentUser, logout } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const role = currentUser?.role || 'therapist';
   const menuGroups = [
     {
-      title: 'General',
+      title: t('common.general') || 'General',
       items: [
-        { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard, roles: ['admin', 'therapist'] },
-        { name: 'Patients', path: '/patients', icon: Users, roles: ['admin', 'therapist'] },
-        { name: 'Appointments', path: '/appointments', icon: Calendar, roles: ['therapist'] },
+        { name: t('nav.dashboard'), path: '/dashboard', icon: LayoutDashboard, roles: ['admin', 'therapist'] },
+        { name: t('nav.patients'), path: '/patients', icon: Users, roles: ['admin', 'therapist'] },
+        { name: t('nav.therapists'), path: '/therapists', icon: Users, roles: ['admin'] },
+        { name: t('nav.appointments'), path: '/appointments', icon: Calendar, roles: ['admin', 'therapist'] },
       ]
     },
     {
-      title: 'Exercise Ecosystem',
+      title: t('nav.exerciseEcosystem') || 'Exercise Ecosystem',
       items: [
-        { name: 'Overview', path: '/exercise-dashboard', icon: Activity, roles: ['admin', 'therapist'] },
-        { name: 'Library', path: '/exercise-library', icon: Dumbbell, roles: ['admin', 'therapist'] },
-        { name: 'My Videos', path: '/my-videos', icon: Video, roles: ['admin', 'therapist'] },
-        { name: 'Builder', path: '/program-builder', icon: PlusSquare, roles: ['admin', 'therapist'] },
-        { name: 'Templates', path: '/program-templates', icon: Presentation, roles: ['admin', 'therapist'] },
-        { name: 'Assigned', path: '/assigned-programs', icon: ClipboardList, roles: ['admin', 'therapist'] },
-        { name: 'Patient Progress', path: '/patient-progress', icon: TrendingUp, roles: ['admin', 'therapist'] },
-        { name: 'Analytics', path: '/exercise-analytics', icon: BarChart3, roles: ['admin', 'therapist'] },
+        { name: t('nav.overview'), path: '/exercise-dashboard', icon: Activity, roles: ['admin', 'therapist'] },
+        { name: t('nav.library'), path: '/exercise-library', icon: Dumbbell, roles: ['admin', 'therapist'] },
+        { name: t('nav.myVideos'), path: '/my-videos', icon: Video, roles: ['admin', 'therapist'] },
+        { name: t('nav.builder'), path: '/program-builder', icon: PlusSquare, roles: ['admin', 'therapist'] },
+        { name: t('nav.templates'), path: '/program-templates', icon: Presentation, roles: ['admin', 'therapist'] },
+        { name: t('nav.assigned'), path: '/assigned-programs', icon: ClipboardList, roles: ['admin', 'therapist'] },
+        { name: t('nav.patientProgress'), path: '/patient-progress', icon: TrendingUp, roles: ['admin', 'therapist'] },
+        { name: t('nav.analytics'), path: '/exercise-analytics', icon: BarChart3, roles: ['admin', 'therapist'] },
       ]
     },
     {
-      title: 'Settings',
+      title: t('nav.settings'),
       items: [
-        { name: 'Settings', path: '/settings', icon: Settings, roles: ['admin', 'therapist'] },
+        { name: t('nav.settings'), path: '/settings', icon: Settings, roles: ['admin', 'therapist'] },
       ]
     }
   ];
@@ -101,7 +104,7 @@ export const SidebarContent = () => {
           }}
         >
           <LogOut className="w-4 h-4 mr-2" />
-          Logout
+          {t('nav.logout')}
         </Button>
       </div>
     </div>

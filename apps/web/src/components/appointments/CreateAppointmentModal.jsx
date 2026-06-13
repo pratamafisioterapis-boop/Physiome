@@ -6,7 +6,7 @@ import Input from '@/components/Input.jsx';
 import Select from '@/components/Select.jsx';
 import DatePicker from '@/components/DatePicker.jsx';
 import TextArea from '@/components/TextArea.jsx';
-import pb from '@/lib/pocketbaseClient';
+import apiServerClient from '@/lib/apiServerClient.js';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 import { toast } from 'sonner';
 
@@ -38,11 +38,11 @@ const CreateAppointmentModal = ({ isOpen, onClose, onSuccess, initialDate, initi
   const fetchDependencies = async () => {
     try {
       const [patientsRes, therapistsRes] = await Promise.all([
-        pb.collection('patients').getFullList({ filter: `clinic_id="${currentUser.clinic_id}"`, $autoCancel: false }),
-        pb.collection('therapists').getFullList({ filter: `clinic_id="${currentUser.clinic_id}"`, $autoCancel: false })
+        apiServerClient.fetch(`/patients`),
+        apiServerClient.fetch(`/therapists?clinic_id=${currentUser.clinic_id}`)
       ]);
-      setPatients(patientsRes.map(p => ({ label: p.full_name, value: p.id })));
-      setTherapists(therapistsRes.map(t => ({ label: t.name, value: t.id })));
+      setPatients(patientsRes.data.map(p => ({ label: p.name, value: p.id })));
+      setTherapists(therapistsRes.data.map(t => ({ label: t.name, value: t.id })));
     } catch (error) {
       console.error('Error fetching dependencies:', error);
       toast.error('Failed to load form data');
@@ -77,12 +77,9 @@ const CreateAppointmentModal = ({ isOpen, onClose, onSuccess, initialDate, initi
     setIsLoading(true);
     try {
       // Check availability
-      const existing = await pb.collection('appointments').getFullList({
-        filter: `therapist_id="${formData.therapist_id}" && date="${formData.date} 12:00:00.000Z" && time="${formData.time}" && status!="Cancelled"`,
-        $autoCancel: false
-      });
+      const existing = await apiServerClient.fetch(`/appointments?therapist_id=${formData.therapist_id}&date=${formData.date} 12:00:00.000Z&time=${formData.time}&status!=Cancelled`);
 
-      if (existing.length > 0) {
+      if (existing.data.length > 0) {
         toast.error('Therapist is already booked at this time');
         setIsLoading(false);
         return;
@@ -95,7 +92,16 @@ const CreateAppointmentModal = ({ isOpen, onClose, onSuccess, initialDate, initi
         clinic_id: currentUser.clinic_id
       };
       
-      await pb.collection('appointments').create(dataToSubmit, { $autoCancel: false });
+      await apiServerClient.fetch('/appointments', {
+        method: 'POST',
+        body: JSON.stringify(dataToSubmit),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }).then(res => {
+        if (res.ok) return res.json();
+        throw new Error('Failed to create appointment');
+      });
       toast.success('Appointment created successfully');
       onSuccess();
       onClose();

@@ -4,14 +4,14 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext.jsx';
-import { useLanguage } from '@/hooks/useLanguage.js';
+import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from '@/components/LanguageSwitcher.jsx';
 
 const LandingHeader = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isAuthenticated } = useAuth();
-  const { t } = useLanguage();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
 

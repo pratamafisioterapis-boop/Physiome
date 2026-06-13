@@ -294,10 +294,11 @@ export default defineConfig({
 		addTransformIndexHtml
 	],
 	server: {
-		port: 3000,
+		allow: ['0.0.0.0', '::', 'localhost', 'physiome.ruangdata.online'],
+		port: 3001,
 		hmr: {
-			host: 'localhost',
-			clientPort: 3000,
+			host: 'physiome.ruangdata.online',
+			clientPort: 443,
 		},
 		proxy: {
 			'/hcgi/api': {
@@ -311,10 +312,8 @@ export default defineConfig({
 			'Cross-Origin-Embedder-Policy': 'credentialless',
 		},
 		allowedHosts: [
-  '.app-preview.com',
-  '.app-preview.io',
-  '.railway.app',
-],
+			'physiome.ruangdata.online',
+		],
 		fs: {
 			strict: true,
 			allow: [

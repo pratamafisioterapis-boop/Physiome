@@ -10,30 +10,34 @@ router.use(jwtAuth); // Gunakan middleware JWT untuk proteksi rute
 router.get('/:userId', async (req, res, next) => {
   const { userId } = req.params;
 
-  // Verifikasi bahwa pengguna yang diautentikasi memiliki izin untuk mengakses preferensi ini
-  // req.userId diset oleh middleware jwtAuth
   if (req.userId !== userId && req.userRole !== 'admin') {
-    return res.status(403).json({ error: 'Forbidden: Anda hanya dapat mengakses preferensi bahasa Anda sendiri.' });
+    return res.status(403).json({
+      error: 'Forbidden'
+    });
   }
 
   try {
-    const preference = await prisma.user_language_preferences.findFirst({
-      where: { userId: userId }
+    let preference = await prisma.user_language_preferences.findUnique({
+      where: {
+        userId
+      }
     });
 
     if (!preference) {
-      // Jika tidak ditemukan, kembalikan preferensi default dengan status 200 OK
-      return res.status(200).json({
-        preferred_language: 'en',
-        app_language: 'en',
-        exercise_language: 'en',
-        reminder_language: 'en',
+      preference = await prisma.user_language_preferences.create({
+        data: {
+          userId,
+          preferred_language: 'en',
+          app_language: 'en',
+          exercise_language: 'en',
+          reminder_language: 'en'
+        }
       });
     }
 
-    res.json(preference);
+    return res.json(preference);
   } catch (error) {
-    next(error); // Teruskan error ke error middleware
+    next(error);
   }
 });
 

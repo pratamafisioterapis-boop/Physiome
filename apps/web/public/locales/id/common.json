@@ -32,7 +32,12 @@
     "assessments": "Penilaian",
     "achievements": "Pencapaian",
     "educationCenter": "Pusat Edukasi",
-    "myProfile": "Profil Saya"
+    "myProfile": "Profil Saya",
+    "accountSettings": "Pengaturan Akun",
+    "clinicSettings": "Pengaturan Klinik",
+    "helpSupport": "Bantuan & Dukungan",
+    "therapists": "Terapis",
+    "exerciseEcosystem": "Ekosistem Latihan"
   },
   "common": {
     "welcome": "Selamat Datang",

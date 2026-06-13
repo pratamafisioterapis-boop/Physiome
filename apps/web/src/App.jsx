@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Route, Routes, BrowserRouter as Router, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext.jsx';
 import { LanguageProvider } from '@/contexts/LanguageContext.jsx';
@@ -39,6 +39,9 @@ import EditExercisePage from '@/pages/admin/EditExercisePage.jsx';
 import CategoriesManagementPage from '@/pages/admin/CategoriesManagementPage.jsx';
 import ExerciseStatisticsPage from '@/pages/admin/ExerciseStatisticsPage.jsx';
 import LanguageManagementPage from '@/pages/admin/LanguageManagementPage.jsx';
+import TherapistListPage from '@/pages/TheraphistListPage.jsx';
+// import TherapistDetailPage from '@/pages/TherapistDetailPage.jsx';
+
 
 // Patient Portal Pages
 import PatientLayout from '@/components/patient/PatientLayout.jsx';
@@ -74,6 +77,7 @@ function App() {
   return (
     <AuthProvider>
       <LanguageProvider>
+        <Suspense fallback={<div className="h-screen w-screen flex items-center justify-center">Loading...</div>}>
         <Router>
           <ScrollToTop />
           <Routes>
@@ -87,10 +91,12 @@ function App() {
             <Route path="/patients" element={<RoleProtectedRoute allowedRoles={['admin', 'therapist']}><PatientListPage /></RoleProtectedRoute>} />
             <Route path="/patients/:id" element={<RoleProtectedRoute allowedRoles={['admin', 'therapist']}><PatientDetailPage /></RoleProtectedRoute>} />
             <Route path="/patients/:patientId/programs" element={<RoleProtectedRoute allowedRoles={['admin', 'therapist']}><PatientProgramTrackingPage /></RoleProtectedRoute>} />
+
+            <Route path="/therapists" element={<RoleProtectedRoute allowedRoles={['admin']}><TherapistListPage /></RoleProtectedRoute>} />
             
-            <Route path="/appointments" element={<RoleProtectedRoute allowedRoles={['therapist']}><AppointmentListPage /></RoleProtectedRoute>} />
-            <Route path="/appointments/calendar" element={<RoleProtectedRoute allowedRoles={['therapist']}><CalendarViewPage /></RoleProtectedRoute>} />
-            <Route path="/appointments/:id" element={<RoleProtectedRoute allowedRoles={['therapist']}><AppointmentDetailPage /></RoleProtectedRoute>} />
+            <Route path="/appointments" element={<RoleProtectedRoute allowedRoles={['admin', 'therapist']}><AppointmentListPage /></RoleProtectedRoute>} />
+            <Route path="/appointments/calendar" element={<RoleProtectedRoute allowedRoles={['admin', 'therapist']}><CalendarViewPage /></RoleProtectedRoute>} />
+            <Route path="/appointments/:id" element={<RoleProtectedRoute allowedRoles={['admin', 'therapist']}><AppointmentDetailPage /></RoleProtectedRoute>} />
             
             {/* Exercise Ecosystem Routes */}
             <Route path="/exercise-dashboard" element={<RoleProtectedRoute allowedRoles={['admin', 'therapist']}><ExerciseDashboard /></RoleProtectedRoute>} />
@@ -127,6 +133,7 @@ function App() {
             
             {/* Patient Portal Routes */}
             <Route path="/patient" element={<RoleProtectedRoute allowedRoles={['patient']}><PatientLayout /></RoleProtectedRoute>}>
+              <Route index element={<Navigate to="dashboard" replace />} />
               <Route path="dashboard" element={<PatientDashboardPage />} />
               <Route path="programs" element={<MyExerciseProgramsPage />} />
               <Route path="videos" element={<ExerciseVideosPage />} />
@@ -147,6 +154,7 @@ function App() {
           </Routes>
           <Toaster position="top-right" theme="system" closeButton richColors />
         </Router>
+        </Suspense>
       </LanguageProvider>
     </AuthProvider>
   );

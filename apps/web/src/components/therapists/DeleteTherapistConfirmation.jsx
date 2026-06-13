@@ -1,24 +1,23 @@
-
 import React, { useState } from 'react';
 import ConfirmDialog from '@/components/ConfirmDialog.jsx';
 import apiServerClient from '@/lib/apiServerClient.js';
 import { toast } from 'sonner';
 
-const DeletePatientConfirmation = ({ isOpen, onClose, onSuccess, patient }) => {
+const DeleteTherapistConfirmation = ({ isOpen, onClose, onSuccess, therapist }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleConfirm = async () => {
-    if (!patient) return;
+    if (!therapist) return;
     
     setIsLoading(true);
     try {
-      await apiServerClient.fetch(`/patients/${patient.id}`, { method: 'DELETE' });
-      toast.success('Patient deleted successfully');
+      await apiServerClient.fetch(`/therapists/${therapist.id}`, { method: 'DELETE' });
+      toast.success('Therapist deleted successfully');
       onSuccess();
       onClose();
     } catch (error) {
       console.error(error);
-      toast.error('Failed to delete patient. Ensure you have the right permissions.');
+      toast.error('Failed to delete therapist. Action restricted or server error.');
     } finally {
       setIsLoading(false);
     }
@@ -29,8 +28,8 @@ const DeletePatientConfirmation = ({ isOpen, onClose, onSuccess, patient }) => {
       isOpen={isOpen}
       onClose={onClose}
       onConfirm={handleConfirm}
-      title="Delete Patient"
-      message={`Are you sure you want to delete ${patient?.full_name}? This action cannot be undone and will remove all associated records.`}
+      title="Delete Therapist"
+      message={`Are you sure you want to delete ${therapist?.fullName || therapist?.name}? This will remove their access to the clinic dashboard.`}
       confirmText="Delete"
       isDestructive={true}
       isLoading={isLoading}
@@ -38,4 +37,4 @@ const DeletePatientConfirmation = ({ isOpen, onClose, onSuccess, patient }) => {
   );
 };
 
-export default DeletePatientConfirmation;
+export default DeleteTherapistConfirmation;

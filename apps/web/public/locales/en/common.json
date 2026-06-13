@@ -32,7 +32,12 @@
     "assessments": "Assessments",
     "achievements": "Achievements",
     "educationCenter": "Education Center",
-    "myProfile": "My Profile"
+    "myProfile": "My Profile",
+    "accountSettings": "Account Settings",
+    "clinicSettings": "Clinic Settings",
+    "helpSupport": "Help & Support",
+    "therapists": "Therapists",
+    "exerciseEcosystem": "Exercise Ecosystem"
   },
   "common": {
     "welcome": "Welcome",

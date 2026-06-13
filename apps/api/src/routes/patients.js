@@ -40,6 +40,11 @@ router.post('/', async (req, res, next) => {
         return res.status(400).json({ error: 'Patient name is required' });
     }
 
+    const clinicId = req.clinicId; // Diambil dari middleware jwtAuth
+    if (!clinicId) {
+        return res.status(400).json({ error: 'Please add your clinic first' });
+    }
+
     try {
         const patient = await prisma.patients.create({
             data: {
@@ -54,7 +59,7 @@ router.post('/', async (req, res, next) => {
                 main_complaint: main_complaint || null,
                 diagnosis: diagnosis || null,
                 status: status || 'Active', // Mendukung 'Active', 'Inactive', 'Discharged'
-                clinic_id: req.clinicId // Diambil dari middleware jwtAuth
+                clinic_id: clinicId // Diambil dari middleware jwtAuth
             }
         });
         res.status(201).json(patient);
@@ -85,6 +90,31 @@ router.put('/:id', async (req, res, next) => {
             }
         });
         res.json(patient);
+    } catch (error) {
+        next(error);
+    }
+});
+
+// DELETE /patients/:id - Delete patient by ID
+router.delete('/:id', async (req, res, next) => {
+    const { id } = req.params;
+
+    try {
+        const result = await prisma.patients.delete({
+            where: {
+                id: id,
+                clinic_id: req.clinicId
+            }
+        });
+        if (!result) {
+            return res.status(404).json({
+                message: 'Patient not found'
+            });
+        }
+
+        return res.status(200).json({
+            message: 'Patient deleted successfully'
+        });
     } catch (error) {
         next(error);
     }
