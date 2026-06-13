@@ -15,9 +15,9 @@ const AddPatientModal = ({ isOpen, onClose, onSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
-    full_name: '',
+    name: '',
     gender: '',
-    date_of_birth: '',
+    birth_date: '',
     phone: '',
     email: '',
     address: '',
@@ -37,9 +37,9 @@ const AddPatientModal = ({ isOpen, onClose, onSuccess }) => {
 
   const validate = () => {
     const newErrors = {};
-    if (!formData.full_name) newErrors.full_name = 'Full name is required';
+    if (!formData.name) newErrors.name = 'Full name is required';
     if (!formData.gender) newErrors.gender = 'Gender is required';
-    if (!formData.date_of_birth) newErrors.date_of_birth = 'Date of birth is required';
+    if (!formData.birth_date) newErrors.birth_date = 'Date of birth is required';
     if (!formData.phone) newErrors.phone = 'Phone is required';
     if (!formData.email) newErrors.email = 'Email is required';
     if (!formData.main_complaint) newErrors.main_complaint = 'Main complaint is required';
@@ -63,11 +63,11 @@ const AddPatientModal = ({ isOpen, onClose, onSuccess }) => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          full_name: formData.full_name,
+          name: formData.name,
           email: formData.email,
           phone: formData.phone,
           gender: formData.gender,
-          birth_date: formData.date_of_birth,
+          birth_date: formData.birth_date,
           address: formData.address,
           occupation: formData.occupation,
           main_complaint: formData.main_complaint,
@@ -101,12 +101,12 @@ const AddPatientModal = ({ isOpen, onClose, onSuccess }) => {
     <Modal isOpen={isOpen} onClose={onClose} title="Add New Patient" footer={footer}>
       <form id="add-patient-form" onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input label="Full Name" name="full_name" value={formData.full_name} onChange={handleChange} error={errors.full_name} required />
+          <Input label="Full Name" name="name" value={formData.name} onChange={handleChange} error={errors.name} required />
           <Select 
             label="Gender" name="gender" value={formData.gender} onChange={handleChange} error={errors.gender}
             options={[{label: 'Male', value: 'Male'}, {label: 'Female', value: 'Female'}, {label: 'Other', value: 'Other'}]} required 
           />
-          <DatePicker label="Date of Birth" name="date_of_birth" value={formData.date_of_birth} onChange={handleChange} error={errors.date_of_birth} required />
+          <DatePicker label="Date of Birth" name="birth_date" value={formData.birth_date} onChange={handleChange} error={errors.birth_date} required />
           <Select 
             label="Status" name="status" value={formData.status} onChange={handleChange} error={errors.status}
             options={[{label: 'Active', value: 'Active'}, {label: 'Inactive', value: 'Inactive'}, {label: 'Discharged', value: 'Discharged'}]} required 

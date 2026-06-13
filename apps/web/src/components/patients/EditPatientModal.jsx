@@ -6,23 +6,25 @@ import Input from '@/components/Input.jsx';
 import Select from '@/components/Select.jsx';
 import DatePicker from '@/components/DatePicker.jsx';
 import TextArea from '@/components/TextArea.jsx';
-import pb from '@/lib/pocketbaseClient';
+import apiServerClient from '@/lib/apiServerClient.js';
 import { toast } from 'sonner';
+import { useHelpers } from '@/hooks/useHelpers.js';
 
-const EditPatientModal = ({ isOpen, onClose, onSuccess, patient }) => {
+const EditPatientModal = ({ isOpen, onClose, onSuccess, patient }) => { 
+  const { formatDateForInput } = useHelpers();
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
-    full_name: '', gender: '', date_of_birth: '', phone: '', email: '',
+    name: '', gender: '', birth_date: '', phone: '', email: '',
     address: '', occupation: '', main_complaint: '', diagnosis: '', status: ''
   });
 
   useEffect(() => {
     if (patient && isOpen) {
       setFormData({
-        full_name: patient.full_name || '',
+        name: patient.name || '',
         gender: patient.gender || '',
-        date_of_birth: patient.date_of_birth ? patient.date_of_birth.split(' ')[0] : '',
+        birth_date: patient.birth_date ? formatDateForInput(patient.birth_date) : '',
         phone: patient.phone || '',
         email: patient.email || '',
         address: patient.address || '',
@@ -45,9 +47,9 @@ const EditPatientModal = ({ isOpen, onClose, onSuccess, patient }) => {
 
   const validate = () => {
     const newErrors = {};
-    if (!formData.full_name) newErrors.full_name = 'Full name is required';
+    if (!formData.name) newErrors.name = 'Full name is required';
     if (!formData.gender) newErrors.gender = 'Gender is required';
-    if (!formData.date_of_birth) newErrors.date_of_birth = 'Date of birth is required';
+    if (!formData.birth_date) newErrors.birth_date = 'Date of birth is required';
     if (!formData.phone) newErrors.phone = 'Phone is required';
     if (!formData.email) newErrors.email = 'Email is required';
     if (!formData.main_complaint) newErrors.main_complaint = 'Main complaint is required';
@@ -68,10 +70,14 @@ const EditPatientModal = ({ isOpen, onClose, onSuccess, patient }) => {
     try {
       const dataToSubmit = {
         ...formData,
-        date_of_birth: formData.date_of_birth + " 12:00:00.000Z"
+        birth_date: formData.birth_date + " 12:00:00.000Z"
       };
       
-      await pb.collection('patients').update(patient.id, dataToSubmit, { $autoCancel: false });
+      await apiServerClient.fetch(`/patients/${patient.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dataToSubmit)
+      });
       toast.success('Patient updated successfully');
       onSuccess();
       onClose();
@@ -98,12 +104,12 @@ const EditPatientModal = ({ isOpen, onClose, onSuccess, patient }) => {
     <Modal isOpen={isOpen} onClose={onClose} title="Edit Patient" footer={footer}>
       <form id="edit-patient-form" onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Input label="Full Name" name="full_name" value={formData.full_name} onChange={handleChange} error={errors.full_name} required />
+          <Input label="Full Name" name="name" value={formData.name} onChange={handleChange} error={errors.name} required />
           <Select 
             label="Gender" name="gender" value={formData.gender} onChange={handleChange} error={errors.gender}
             options={[{label: 'Male', value: 'Male'}, {label: 'Female', value: 'Female'}, {label: 'Other', value: 'Other'}]} required 
           />
-          <DatePicker label="Date of Birth" name="date_of_birth" value={formData.date_of_birth} onChange={handleChange} error={errors.date_of_birth} required />
+          <DatePicker label="Date of Birth" name="birth_date" value={formData.birth_date} onChange={handleChange} error={errors.birth_date} required />
           <Select 
             label="Status" name="status" value={formData.status} onChange={handleChange} error={errors.status}
             options={[{label: 'Active', value: 'Active'}, {label: 'Inactive', value: 'Inactive'}, {label: 'Discharged', value: 'Discharged'}]} required 

@@ -294,10 +294,10 @@ export default defineConfig({
 		addTransformIndexHtml
 	],
 	server: {
-		port: 3001,
+		port: 3000,
 		hmr: {
 			host: 'localhost',
-			clientPort: 3001,
+			clientPort: 3000,
 		},
 		proxy: {
 			'/hcgi/api': {

@@ -5,7 +5,7 @@ import { Activity, Dumbbell, Users, PlayCircle, Plus, Upload, BarChart, Clipboar
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import pb from '@/lib/pocketbaseClient.js';
+import apiServerClient from '@/lib/apiServerClient.js';
 import Sidebar from '@/components/Sidebar.jsx';
 import Header from '@/components/Header.jsx';
 
@@ -18,23 +18,14 @@ export default function ExerciseDashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const [exercises, programs, assigned] = await Promise.all([
-          pb.collection('exercises').getList(1, 1, { $autoCancel: false }),
-          pb.collection('programs').getList(1, 1, { $autoCancel: false }),
-          pb.collection('assigned_programs').getList(1, 5, { 
-            sort: '-created',
-            expand: 'patient_id,program_id',
-            $autoCancel: false 
-          })
-        ]);
-
+        const data = await apiServerClient.fetch('/dashboard/admin-stats');
         setStats({
-          exercises: exercises.totalItems,
-          programs: programs.totalItems,
-          assigned: assigned.totalItems,
-          active: assigned.items.filter(a => a.status === 'Active').length
+          exercises: data.programs || 0,
+          programs: data.programs || 0,
+          assigned: data.patients || 0,
+          active: data.appointments || 0
         });
-        setRecent(assigned.items);
+        setRecent([]);
       } catch (error) {
         console.error("Error fetching dashboard stats:", error);
       } finally {

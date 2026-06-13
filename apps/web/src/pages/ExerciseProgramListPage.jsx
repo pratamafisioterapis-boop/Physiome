@@ -7,7 +7,7 @@ import Table from '@/components/Table.jsx';
 import Button from '@/components/Button.jsx';
 import Input from '@/components/Input.jsx';
 import { Search, Plus, Edit2, UserPlus, PlayCircle } from 'lucide-react';
-import pb from '@/lib/pocketbaseClient';
+import apiServerClient from '@/lib/apiServerClient.js';
 import { useAuth } from '@/contexts/AuthContext.jsx';
 import { Helmet } from 'react-helmet';
 
@@ -26,11 +26,8 @@ const ExerciseProgramListPage = () => {
       if (!currentUser?.clinic_id) return;
       setIsLoading(true);
       try {
-        const records = await pb.collection('exercise_programs').getFullList({
-          filter: `clinic_id = "${currentUser.clinic_id}"`,
-          sort: '-created',
-          $autoCancel: false
-        });
+        // Buat rute ini di backend serupa dengan patients/appointments
+        const records = await apiServerClient.fetch('/exercise-programs');
         setPrograms(records);
       } catch (error) {
         console.error(error);

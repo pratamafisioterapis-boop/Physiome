@@ -10,7 +10,6 @@ import Select from '@/components/Select.jsx';
 import StatusBadge from '@/components/appointments/StatusBadge.jsx';
 import { Plus, Search, Eye, Edit2, Trash2, Calendar as CalendarIcon } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext.jsx';
-// import pb from '@/lib/pocketbaseClient';
 import apiServerClient from '@/lib/apiServerClient.js';
 import { Helmet } from 'react-helmet';
 import CreateAppointmentModal from '@/components/appointments/CreateAppointmentModal.jsx';
@@ -37,7 +36,7 @@ const AppointmentListPage = () => {
     if (!currentUser?.clinic_id) return;
     setIsLoading(true);
     try {
-      const records = await apiServerClient.fetch(`/appointments?clinic_id=${currentUser.clinic_id}`);
+      const records = await apiServerClient.fetch('/appointments');
       setAppointments(records);
     } catch (error) {
       console.error('Error fetching appointments:', error);
@@ -55,8 +54,8 @@ const AppointmentListPage = () => {
   }, [search, statusFilter]);
 
   const filteredAppointments = appointments.filter(a => {
-    const patientName = a.expand?.patient_id?.full_name?.toLowerCase() || '';
-    const therapistName = a.expand?.therapist_id?.name?.toLowerCase() || '';
+    const patientName = a.patients?.name?.toLowerCase() || '';
+    const therapistName = a.therapist_id?.toLowerCase() || ''; // Sesuaikan jika ada relasi therapist
     const searchLower = search.toLowerCase();
     
     const matchesSearch = search === '' || patientName.includes(searchLower) || therapistName.includes(searchLower);
@@ -164,8 +163,8 @@ const AppointmentListPage = () => {
                   {paginatedAppointments.map((apt) => (
                     <React.Fragment key={apt.id}>
                       <tr className="hidden md:table-row">
-                        <td className="font-medium text-foreground">{apt.expand?.patient_id?.full_name || 'Unknown'}</td>
-                        <td className="text-muted-foreground">{apt.expand?.therapist_id?.name || 'Unknown'}</td>
+                        <td className="font-medium text-foreground">{apt.patients?.name || 'Unknown'}</td>
+                        <td className="text-muted-foreground">Therapist</td>
                         <td>
                           <div className="text-sm">{formatDate(apt.date)}</div>
                           <div className="text-xs text-muted-foreground">{apt.time}</div>
@@ -190,8 +189,8 @@ const AppointmentListPage = () => {
                       <div className="md:hidden flex flex-col p-4 bg-card border border-border rounded-xl shadow-sm mb-4">
                         <div className="flex justify-between items-start mb-3">
                           <div>
-                            <h3 className="font-medium text-foreground">{apt.expand?.patient_id?.full_name}</h3>
-                            <p className="text-xs text-muted-foreground">{apt.expand?.therapist_id?.name}</p>
+                            <h3 className="font-medium text-foreground">{apt.patients?.name}</h3>
+                            <p className="text-xs text-muted-foreground">Therapist</p>
                           </div>
                           <StatusBadge status={apt.status} />
                         </div>
