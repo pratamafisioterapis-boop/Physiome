@@ -28,13 +28,13 @@ router.get('/', async (req, res, next) => {
 // POST /patients - Menambahkan pasien baru
 router.post('/', async (req, res, next) => {
     const { 
-        full_name, fullName, name,
-        gender, date_of_birth, birth_date,
+        name, fullName, full_name,
+        gender, birth_date,
         phone, email, address, occupation, 
         main_complaint, diagnosis, status 
     } = req.body;
 
-    const patientName = full_name || fullName || name;
+    const patientName = name || fullName || full_name;
 
     if (!patientName) {
         return res.status(400).json({ error: 'Patient name is required' });
@@ -47,7 +47,7 @@ router.post('/', async (req, res, next) => {
                 name: patientName,
                 email: email || null,
                 phone: phone || null,
-                birth_date: (birth_date || date_of_birth) ? new Date(birth_date || date_of_birth) : null,
+                birth_date: birth_date ? new Date(birth_date) : null,
                 gender: gender ? gender.toLowerCase() : null, // Mengonversi 'Male' -> 'male' sesuai Enum DB
                 address: address || null,
                 occupation: occupation || null,
@@ -58,6 +58,33 @@ router.post('/', async (req, res, next) => {
             }
         });
         res.status(201).json(patient);
+    } catch (error) {
+        next(error);
+    }
+});
+
+// PUT /patients/:id - Update patient by ID
+router.put('/:id', async (req, res, next) => {
+    const { id } = req.params;
+    const data = req.body;
+
+    // const patientName = data.name || data.fullName || data.full_name;
+
+    // if (!patientName) {
+    //     return res.status(400).json({ error: 'Patient name is required' });
+    // }
+
+    try {
+        const patient = await prisma.patients.update({
+            where: {
+                id: id,
+                clinic_id: req.clinicId
+            },
+            data: {
+                ...data
+            }
+        });
+        res.json(patient);
     } catch (error) {
         next(error);
     }

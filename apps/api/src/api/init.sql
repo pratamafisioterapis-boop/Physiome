@@ -230,6 +230,56 @@ CREATE TABLE IF NOT EXISTS user_language_preferences (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+-- Tabel Exercises (Latihan)
+CREATE TABLE IF NOT EXISTS exercises (
+    id VARCHAR(255) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    body_region VARCHAR(100),
+    difficulty ENUM('Beginner', 'Intermediate', 'Advanced'),
+    category VARCHAR(100),
+    thumbnail_url TEXT,
+    video_url TEXT,
+    instructions TEXT,
+    clinic_id VARCHAR(255),
+    created_by VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Tabel Exercise Programs (Protokol/Template)
+CREATE TABLE IF NOT EXISTS exercise_programs (
+    id VARCHAR(255) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    clinical_goal TEXT,
+    body_region VARCHAR(100),
+    expected_duration VARCHAR(50),
+    exercises JSON, -- Menyimpan konfigurasi latihan dalam format JSON
+    created_by VARCHAR(255),
+    clinic_id VARCHAR(255),
+    status ENUM('Active', 'Draft', 'Archived') DEFAULT 'Active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Tabel Appointments (Janji Temu)
+CREATE TABLE IF NOT EXISTS appointments (
+    id VARCHAR(255) PRIMARY KEY,
+    patient_id VARCHAR(255) NOT NULL,
+    therapist_id VARCHAR(255),
+    clinic_id VARCHAR(255),
+    date DATE NOT NULL,
+    time VARCHAR(10) NOT NULL,
+    duration INT DEFAULT 30,
+    status ENUM('Scheduled', 'Confirmed', 'Completed', 'Cancelled') DEFAULT 'Scheduled',
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE CASCADE
+);
+
+
 -- Index untuk performa pencarian
 CREATE INDEX idx_ai_messages_user ON integrated_ai_messages(userId);
 CREATE INDEX idx_soap_notes_patient ON soap_notes(patient_id);
